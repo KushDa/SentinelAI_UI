@@ -12,3 +12,4 @@ app = FastAPI(
 
 # Include the endpoints from the routes file
 app.include_router(router)
+

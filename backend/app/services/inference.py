@@ -4,10 +4,23 @@ import cv2
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras.models import load_model
-from app.core.config import settings
+from ..core.config import settings
 
-# Load model at startup
-model = load_model(settings.MODEL_PATH)
+model = None
+
+
+def get_model():
+    """Lazy-load the model so API startup does not fail when path is invalid."""
+    global model
+    if model is None:
+        try:
+            model = load_model(settings.MODEL_PATH)
+        except Exception as e:
+            raise RuntimeError(
+                f"Model failed to load from MODEL_PATH='{settings.MODEL_PATH}'. "
+                "Set a valid model path in backend/app/core/config.py."
+            ) from e
+    return model
 
 def get_verdict_and_confidence(score: float):
     """Calculates verdict and confidence based on how the model was mapped."""
@@ -42,7 +55,7 @@ def analyze_image_for_deepfakes(img: np.ndarray):
     processed = preprocess_to_match_training(rgb_img)
     processed = np.expand_dims(processed, axis=0)
 
-    score = float(model.predict(processed, verbose=0)[0][0])
+    score = float(get_model().predict(processed, verbose=0)[0][0])
     verdict, confidence = get_verdict_and_confidence(score)
 
     return {
@@ -84,7 +97,7 @@ def analyze_video_for_deepfakes(video_path: str, target_fps: int = 2):
         }
 
     batch_array = np.array(batch_frames)
-    predictions = model.predict(batch_array, verbose=0).flatten()
+    predictions = get_model().predict(batch_array, verbose=0).flatten()
     avg_score = float(np.mean(predictions))
 
     if settings.FAKE_IS_LOW_SCORE:

@@ -8,9 +8,9 @@ import numpy as np
 import asyncio
 import yt_dlp
 
-from app.models.schemas import URLRequest
-from app.services.downloader import download_video_with_ytdlp
-from app.services.inference import analyze_video_for_deepfakes, analyze_image_for_deepfakes
+from ..models.schemas import URLRequest
+from ..services.downloader import download_video_with_ytdlp
+from ..services.inference import analyze_video_for_deepfakes, analyze_image_for_deepfakes
 
 router = APIRouter()
 

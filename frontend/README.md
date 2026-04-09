@@ -73,3 +73,4 @@ This frontend communicates with the backend API for processing.
 
 **Expected Backend URL:**
 http://localhost:8080 (for local development)
+
